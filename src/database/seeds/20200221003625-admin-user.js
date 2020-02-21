@@ -3,7 +3,7 @@ const bycrypt = require('bcryptjs');
 ('use strict');
 
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+  up: queryInterface => {
     return queryInterface.bulkInsert(
       'users',
       [
@@ -19,7 +19,7 @@ module.exports = {
     );
   },
 
-  down: (queryInterface, Sequelize) => {
+  down: queryInterface => {
     return queryInterface.bulkDelete('users', [
       {
         name: 'FastFeet admin',
