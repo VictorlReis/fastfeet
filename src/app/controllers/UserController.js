@@ -40,9 +40,8 @@ class UserController {
       ),
     });
 
-    if (!(await schema.isValid(req.body))) {
+    if (!(await schema.isValid(req.body)))
       return res.status(400).json({ error: 'Validation fails' });
-    }
 
     const { email, oldPassword } = req.body;
 
@@ -51,9 +50,8 @@ class UserController {
     if (email !== user.email) {
       const userExists = await User.findOne({ where: { email } });
 
-      if (userExists) {
+      if (userExists)
         return res.status(400).json({ error: 'User already exists!' });
-      }
     }
 
     if (oldPassword && !(await user.checkPassword(oldPassword))) {

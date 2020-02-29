@@ -12,15 +12,13 @@ const upload = multer(multerConfig);
 
 routes.post('/users', UserController.store);
 routes.post('/login', SessionController.store);
+
 routes.post('/recipients', RecipientController.store);
-
-routes.use(authMiddleware);
-
-// The following routes will use authMiddleware
-
-routes.put('/users', UserController.update);
-// routes.put('/recipients', RecipientController.update);
+routes.put('/recipients/:id', RecipientController.update);
 
 routes.post('/files', upload.single('file'), FileController.store);
+routes.put('/users', UserController.update);
 
+routes.use(authMiddleware);
+// The following routes will use authMiddleware
 export default routes;
