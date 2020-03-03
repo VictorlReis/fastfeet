@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import * as Yup from 'yup';
 import User from '../models/User';
 
@@ -17,12 +18,20 @@ class UserController {
       return res.status(400).json({ error: 'Validation fails' });
     }
 
+    const user = await User.findByPk(req.userId);
+    console.log(req.userId);
+    if (!user.administrator) {
+      return res
+        .status(400)
+        .json({ error: "You don't have permission to perform this action." });
+    }
+
     const userExists = await User.findOne({ where: { email: req.body.email } });
     if (userExists) {
       return res.status(400).json({ error: 'User already exists!' });
     }
-    const { id, name, email } = await User.create(req.body);
-    return res.json({ id, name, email });
+    const { id, name, email, administrator } = await User.create(req.body);
+    return res.json({ id, name, email, administrator });
   }
 
   async update(req, res) {
@@ -43,9 +52,14 @@ class UserController {
     if (!(await schema.isValid(req.body)))
       return res.status(400).json({ error: 'Validation fails' });
 
-    const { email, oldPassword } = req.body;
-
     const user = await User.findByPk(req.userId);
+    if (!user.administrator) {
+      return res
+        .status(400)
+        .json({ error: "You don't have permission to perform this action." });
+    }
+
+    const { email, oldPassword } = req.body;
 
     if (email !== user.email) {
       const userExists = await User.findOne({ where: { email } });
@@ -58,9 +72,9 @@ class UserController {
       return res.status(401).json({ error: 'Password does not match' });
     }
 
-    const { id, name } = await user.update(req.body);
+    const { id, name, avatar_id, administrator } = await user.update(req.body);
 
-    return res.json({ id, name, email });
+    return res.json({ id, name, email, avatar_id, administrator });
   }
 }
 

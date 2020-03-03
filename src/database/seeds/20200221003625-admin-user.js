@@ -1,7 +1,5 @@
 const bycrypt = require('bcryptjs');
 
-('use strict');
-
 module.exports = {
   up: queryInterface => {
     return queryInterface.bulkInsert(
@@ -11,6 +9,7 @@ module.exports = {
           name: 'FastFeet admin',
           email: 'admin@fastfeet.com',
           password_hash: bycrypt.hashSync('1234', 8),
+          administrator: true,
           created_at: new Date(),
           updated_at: new Date(),
         },
