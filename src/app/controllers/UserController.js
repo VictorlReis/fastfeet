@@ -19,7 +19,6 @@ class UserController {
     }
 
     const user = await User.findByPk(req.userId);
-    console.log(req.userId);
     if (!user.administrator) {
       return res
         .status(400)
