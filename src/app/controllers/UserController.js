@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import * as Yup from 'yup';
 import User from '../models/User';
+import File from '../models/File';
 
 class UserController {
   async store(req, res) {
@@ -74,6 +75,32 @@ class UserController {
     const { id, name, avatar_id, administrator } = await user.update(req.body);
 
     return res.json({ id, name, email, avatar_id, administrator });
+  }
+
+  async index(req, res) {
+    const { page = 1 } = req.query;
+    const users = await User.findAll({
+      where: { administrator: false },
+      order: ['created_at'],
+      include: [
+        { model: File, as: 'avatar', attributes: ['id', 'path', 'url'] },
+      ],
+      attributes: ['id', 'name', 'email'],
+      limit: 20,
+      offset: (page - 1) * 20,
+    });
+
+    const isAdministrator = await User.findOne({
+      where: { id: req.userId, administrator: true },
+    });
+
+    if (!isAdministrator) {
+      return res
+        .status(401)
+        .json({ error: "You don't have permission to create an order" });
+    }
+
+    return res.json(users);
   }
 }
 

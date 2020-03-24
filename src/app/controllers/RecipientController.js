@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import * as Yup from 'yup';
 import Recipient from '../models/Recipient';
+import User from '../models/User';
 
 class RecipientController {
   async store(req, res) {
@@ -14,6 +15,16 @@ class RecipientController {
 
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation fails' });
+    }
+
+    const isAdministrator = await User.findOne({
+      where: { id: req.userId, administrator: true },
+    });
+
+    if (!isAdministrator) {
+      return res
+        .status(401)
+        .json({ error: "You don't have permission to create a recipient" });
     }
 
     const recipientExists = await Recipient.findOne({
@@ -33,6 +44,16 @@ class RecipientController {
 
     if (!recipient) {
       return res.status(400).json({ error: 'Recipient not found.' });
+    }
+
+    const isAdministrator = await User.findOne({
+      where: { id: req.userId, administrator: true },
+    });
+
+    if (!isAdministrator) {
+      return res
+        .status(401)
+        .json({ error: "You don't have permission to update a recipient" });
     }
 
     await recipient.update(req.body);
