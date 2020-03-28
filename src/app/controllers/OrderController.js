@@ -5,6 +5,9 @@ import Order from '../models/Order';
 import User from '../models/User';
 import File from '../models/File';
 import Notification from '../schemas/Notification';
+import Queue from '../../lib/Queue';
+import CancellationMail from '../jobs/CancellationMail';
+import CreationMail from '../jobs/CreationMail';
 
 class OrderController {
   async index(req, res) {
@@ -99,6 +102,8 @@ class OrderController {
       recipient_id,
     });
 
+    await Queue.add(CreationMail.key, { order });
+
     const user = await User.findByPk(req.userId);
 
     await Notification.create({
@@ -110,7 +115,11 @@ class OrderController {
   }
 
   async delete(req, res) {
-    const order = await Order.findByPk(req.params.id);
+    const order = await Order.findByPk(req.params.id, {
+      include: [
+        { model: User, as: 'deliveryman', attributes: ['name', 'email'] },
+      ],
+    });
 
     if (order.deliveryman_id !== req.userId) {
       return res
@@ -126,7 +135,13 @@ class OrderController {
         .json({ error: 'Only deliverymen can delete an order' });
     }
 
-    return res.json({ ok: true });
+    order.canceled_at = new Date();
+
+    await order.save();
+
+    await Queue.add(CancellationMail.key, { order });
+
+    return res.json(order);
   }
 }
 export default new OrderController();
