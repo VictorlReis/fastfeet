@@ -1,5 +1,7 @@
 node_modules
 tmp
+yarn.lock
+.env
 # Logs
 logs
 *.log

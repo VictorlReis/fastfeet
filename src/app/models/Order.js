@@ -1,4 +1,5 @@
 import Sequelize, { Model } from 'sequelize';
+import { isBefore } from 'date-fns';
 
 class Order extends Model {
   static init(sequelize) {
@@ -8,6 +9,12 @@ class Order extends Model {
         canceled_at: Sequelize.DATE,
         start_date: Sequelize.DATE,
         end_date: Sequelize.DATE,
+        past: {
+          type: Sequelize.VIRTUAL,
+          get() {
+            return isBefore(this.date, new Date());
+          },
+        },
       },
       {
         sequelize,
@@ -20,7 +27,6 @@ class Order extends Model {
   static associate(models) {
     this.belongsTo(models.User, {
       foreignKey: 'deliveryman_id',
-      as: 'deliveryman',
     });
     this.belongsTo(models.Recipient, {
       foreignKey: 'recipient_id',

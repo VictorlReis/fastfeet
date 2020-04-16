@@ -27,6 +27,7 @@ class OrderController {
       attributes: [
         'id',
         'product',
+        'past',
         'canceled_at',
         'start_date',
         'end_date',
@@ -61,23 +62,15 @@ class OrderController {
       end_date,
     } = req.body;
 
-    const isAdministrator = await User.findOne({
-      where: { id: req.userId, administrator: true },
-    });
+    //    const isAdministrator = await User.findOne({
+    //      where: { id: req.userId, administrator: true },
+    //    });
 
-    if (!isAdministrator) {
-      return res
-        .status(401)
-        .json({ error: "You don't have permission to create an order" });
-    }
-
-    const isDeliveryman = await User.findByPk(deliveryman_id);
-
-    if (isDeliveryman.administrator) {
-      return res
-        .status(401)
-        .json({ error: 'Only deliverymen can have an order' });
-    }
+    //    if (!isAdministrator) {
+    //      return res
+    //        .status(401)
+    //        .json({ error: "You don't have permission to create an order" });
+    //    }
 
     const startDateHour = startOfHour(parseISO(start_date));
 
